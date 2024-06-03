@@ -1,0 +1,89 @@
+import cv2
+import face_recognition
+import tkinter as tk
+from tkinter import filedialog
+from PIL import Image, ImageTk
+
+# Fungsi untuk memilih dan memuat gambar dari file komputer
+def load_image():
+    file_path = filedialog.askopenfilename()
+    if not file_path:
+        return None
+    image = cv2.imread(file_path)
+    return image
+
+# Fungsi untuk mendeteksi wajah dalam gambar
+def detect_face_encodings(image):
+    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    face_locations = face_recognition.face_locations(rgb_image)
+    face_encodings = face_recognition.face_encodings(rgb_image, face_locations)
+    return face_encodings
+
+# Fungsi untuk membandingkan dua gambar
+def compare_images(image1, image2):
+    encodings1 = detect_face_encodings(image1)
+    encodings2 = detect_face_encodings(image2)
+
+    if not encodings1 or not encodings2:
+        return False
+
+    for encoding1 in encodings1:
+        results = face_recognition.compare_faces(encodings2, encoding1)
+        if any(results):
+            return True
+    return False
+
+# Fungsi untuk register foto
+def register_photo():
+    global registered_image
+    registered_image = load_image()
+    if registered_image is not None:
+        display_image(registered_image, "Gambar Terdaftar")
+
+# Fungsi untuk tes compare foto
+def test_compare_photo():
+    if registered_image is None:
+        result_label.config(text="Register foto terlebih dahulu!")
+        return
+    test_image = load_image()
+    if test_image is not None:
+        is_match = compare_images(registered_image, test_image)
+        if is_match:
+            result_label.config(text="Wajah cocok!")
+        else:
+            result_label.config(text="Wajah tidak cocok!")
+
+# Fungsi untuk menampilkan gambar di GUI
+def display_image(image, title):
+    bgr_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(bgr_image)
+    img_tk = ImageTk.PhotoImage(image=img)
+    panel.config(image=img_tk)
+    panel.image = img_tk
+    panel_label.config(text=title)
+
+# Inisialisasi GUI
+root = tk.Tk()
+root.title("Face Recognition")
+
+registered_image = None
+
+# Tombol Register Foto
+register_button = tk.Button(root, text="Register Foto", command=register_photo)
+register_button.pack()
+
+# Tombol Tes Compare Foto
+test_button = tk.Button(root, text="Tes Compare Foto", command=test_compare_photo)
+test_button.pack()
+
+# Label hasil perbandingan
+result_label = tk.Label(root, text="")
+result_label.pack()
+
+# Panel untuk menampilkan gambar
+panel_label = tk.Label(root, text="")
+panel_label.pack()
+panel = tk.Label(root)
+panel.pack()
+
+root.mainloop()

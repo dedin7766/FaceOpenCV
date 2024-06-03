@@ -1,0 +1,52 @@
+import cv2
+import face_recognition
+
+# Fungsi untuk menangkap gambar saat tombol ditekan
+def capture_image():
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        cv2.putText(frame, 'Tekan spasi untuk menangkap', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.imshow('Press Space to Capture', frame)
+        key = cv2.waitKey(1)
+        if key == ord(' '):  # Menekan spasi untuk menangkap gambar
+            cv2.putText(frame, 'Gambar berhasil ditangkap', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+    return frame
+
+# Fungsi untuk mendeteksi wajah dalam gambar
+def detect_face_encodings(image):
+    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    face_locations = face_recognition.face_locations(rgb_image)
+    face_encodings = face_recognition.face_encodings(rgb_image, face_locations)
+    return face_encodings
+
+# Fungsi untuk membandingkan dua gambar
+def compare_images(image1, image2):
+    encodings1 = detect_face_encodings(image1)
+    encodings2 = detect_face_encodings(image2)
+
+    if not encodings1 or not encodings2:
+        return False
+
+    for encoding1 in encodings1:
+        results = face_recognition.compare_faces(encodings2, encoding1)
+        if any(results):
+            return True
+    return False
+
+# Menangkap gambar pertama
+print("Tekan spasi untuk menangkap gambar pertama")
+image1 = capture_image()
+
+# Menangkap gambar kedua
+print("Tekan spasi untuk menangkap gambar kedua")
+image2 = capture_image()
+
+# Bandingkan dua gambar
+if compare_images(image1, image2):
+    print("Wajah cocok!")
+else:
+    print("Wajah tidak cocok!")

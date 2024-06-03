@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #333;
+}
+
+form {
+    margin-top: 20px;
+}
+
+input[type="text"],
+input[type="file"],
+button {
+    margin-top: 10px;
+}
+
+#result {
+    margin-top: 20px;
+    font-weight: bold;
+}

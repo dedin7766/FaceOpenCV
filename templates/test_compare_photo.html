@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes Compare Foto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Tes Compare Foto</h1>
+    <form id="compare-form" action="/compare" method="post" enctype="multipart/form-data">
+        <label for="user-select">Pilih User:</label>
+        <select id="user-select" name="user_id" onchange="updateUserPhoto()">
+            <option value="">--Pilih User--</option>
+            {% for user in users %}
+                <option value="{{ user.id }}" data-name="{{ user.name }}" data-filepath="{{ user.file_path }}">{{ user.name }}</option>
+            {% endfor %}
+        </select>
+        <div id="user-info" style="display: none;">
+            <p id="user-name"></p>
+            <div id="user-photo">
+                <img id="photo-display" src="" alt="User Photo" style="max-width: 200px;">
+            </div>
+        </div>
+        <input type="file" name="photo" accept="image/*">
+        <button type="submit">Tes Compare</button>
+    </form>
+    <div id="result"></div>
+    <script>
+        function updateUserPhoto() {
+            const userSelect = document.getElementById('user-select');
+            const userInfo = document.getElementById('user-info');
+            const userName = document.getElementById('user-name');
+            const photoDisplay = document.getElementById('photo-display');
+            const selectedUser = userSelect.options[userSelect.selectedIndex];
+
+            if (selectedUser.value) {
+                userName.textContent = `Nama: ${selectedUser.text}`;
+                photoDisplay.src = selectedUser.dataset.filepath; // Update here
+                userInfo.style.display = 'block';
+            } else {
+                userInfo.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
